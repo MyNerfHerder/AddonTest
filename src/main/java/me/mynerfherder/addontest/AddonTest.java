@@ -1,10 +1,13 @@
 package me.mynerfherder.addontest;
 
+import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.meta.PotionMeta;
 
@@ -26,6 +29,16 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
 
     @Override
     public void onEnable() {
+        //Prints out that the addon is enabled in the console
+        getLogger().info("Vehicle Mod has been Enabled and will now load.");
+
+        //Manages the plugins???
+        PluginManager pm = getServer().getPluginManager();
+
+        //He hears all! events...
+        CartListener listener = new CartListener(this);
+        pm.registerEvents(listener, this);
+
         // Read something from your config.yml
         Config cfg = new Config(this);
 
@@ -57,6 +70,10 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         SlimefunItemStack DriedGrassItem = new SlimefunItemStack("DRIED_GRASS", Material.DRIED_KELP, "&aDried grass", "&fAll dried up and crinkly.");
         SlimefunItemStack GrassGelItem = new SlimefunItemStack("GRASS_GEL", Material.SLIME_BALL, "&2Grass Gel", "&cAll Gelled up smelling like fresh cut grass.");
         SlimefunItemStack BiomassBarrelItem = new SlimefunItemStack("BIOMASS_BARREL", SkullItem.fromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGUxN2Q5MzRiNDY1ZjUyNmE4Mzc2NmZhZmMwNGIyNzRkMmYxMTFhNDE2MThlMzY3OTcwNmJhODUxY2E4ZiJ9fX0=") , "&2Biomass Barrel","A way to store all of that MASS!");
+        SlimefunItemStack RubberBallItem = new SlimefunItemStack("RUBBER_BALL", SkullItem.fromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjI1MjNlMTVlOTk4NjM1NWExZjg1MWY0M2Y3NTBlZTNmMjNjODlhZTEyMzYzMWRhMjQxZjg3MmJhN2E3ODEifX19"), "&7Rubber Ball", "&eA lump of rubber");
+
+        SlimefunItemStack CarItem = new SlimefunItemStack("CAR", Material.MINECART, "Car", "HE HE car goes brrrrrrrr.");
+        SlimefunItemStack SparkPlugItem = new SlimefunItemStack("SPARK_PLUG", Material.BREWING_STAND, "Spark Plug", "This makes the small lightning.");
 
         //-------------------------------------------------------------------------------------------------------------------------------------------------------
         // The Recipe is an ItemStack Array with a length of 9.
@@ -64,7 +81,11 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         // The machine in which this recipe is crafted in is specified further down
         ItemStack[] DriedGrassRecipe = { new ItemStack(Material.GRASS, 10), null, null, null, null, null, null, null, null };
         ItemStack[] GrassGelRecipe = { new SlimefunItemStack(DriedGrassItem, 10), null, null, null, null, null, null, null, null };
-        ItemStack[] BiomassBarrelRecipe = { new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1), new SlimefunItemStack(GrassGelItem, 1)};
+        ItemStack[] BiomassBarrelRecipe = { new SlimefunItemStack(GrassGelItem, 3), null, null, null, null, null, null, null, null };
+        ItemStack[] RubberBallRecipe = { new SlimefunItemStack(SlimefunItems.OIL_BUCKET, 1), null, null, null, null, null, null, null, null };
+
+        ItemStack[] CarRecipe = {null, null, null, null, null, null, null, null, null};
+        ItemStack[] SparkPlugRecipe = {null, null, null, null, null, null, null, null, null};
 
         //-------------------------------------------------------------------------------------------------------------------------------------------------------
         // Now you just have to register the item
@@ -72,13 +93,21 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         // Recipe Types from Slimefun itself will automatically add the recipe to that machine
         SlimefunItem DriedGrass = new SlimefunItem(category, DriedGrassItem, RecipeType.SMELTERY, DriedGrassRecipe);
         SlimefunItem GrassGel = new SlimefunItem(category, GrassGelItem, RecipeType.PRESSURE_CHAMBER, GrassGelRecipe);
-        SlimefunItem BiomassBarrel = new SlimefunItem(category, BiomassBarrelItem, RecipeType.ENHANCED_CRAFTING_TABLE, BiomassBarrelRecipe);
+        SlimefunItem BiomassBarrel = new SlimefunItem(category, BiomassBarrelItem, RecipeType.REFINERY, BiomassBarrelRecipe);
+        SlimefunItem RubberBall = new SlimefunItem(category, RubberBallItem, RecipeType.HEATED_PRESSURE_CHAMBER, RubberBallRecipe);
+
+        SlimefunItem Car = new SlimefunItem(category, CarItem, RecipeType.ENHANCED_CRAFTING_TABLE, CarRecipe);
+        SlimefunItem SparkPlug = new SlimefunItem(category, SparkPlugItem, RecipeType.ENHANCED_CRAFTING_TABLE, SparkPlugRecipe);
 
         //-------------------------------------------------------------------------------------------------------------------------------------------------------
         //Registers all the recipes for this addon to slimefun.
         DriedGrass.register(this);
         GrassGel.register(this);
         BiomassBarrel.register(this);
+        RubberBall.register(this);
+
+        Car.register(this);
+        SparkPlug.register(this);
 
         //Stuff to customize a potion and its effects
         //PotionMeta potmeta = (PotionMeta) GrassJuiceItem.getItemMeta();
@@ -91,6 +120,7 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
     @Override
     public void onDisable() {
         // Logic for disabling the plugin...
+        getLogger().info("The Vehicle SF Addon Is Disabled.");
     }
 
     @Override

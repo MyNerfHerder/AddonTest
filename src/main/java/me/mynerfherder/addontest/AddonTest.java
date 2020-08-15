@@ -4,9 +4,14 @@ import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Slime;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -23,14 +28,39 @@ import me.mrCookieSlime.Slimefun.cscorelib2.skull.SkullItem;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class AddonTest extends JavaPlugin implements SlimefunAddon {
+
+
+    //sets up meta data for da carts?
+    public static void setMetadata (Plugin plugin, Entity entity, String key, Object object){
+
+        entity.setMetadata(key, new FixedMetadataValue(plugin, object));
+
+    }
+
+    //makes the data file object to be used later.
+    private File cartData = new File("../AddonTest/cartData.yml");
+    //Loads the YAML Configuration.
+    public YamlConfiguration cartDataFile = YamlConfiguration.loadConfiguration(cartData);
 
     @Override
     public void onEnable() {
         //Prints out that the addon is enabled in the console
         getLogger().info("Vehicle Mod has been Enabled and will now load.");
+
+        //Gets if the cart data file exists or not and creates it.
+        if(!cartData.exists()) {
+            try {
+                cartDataFile.save(cartData);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         //Manages the plugins???
         PluginManager pm = getServer().getPluginManager();
@@ -115,6 +145,8 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         //potmeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 100, 0), true);
         //potmeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
         //GrassJuiceItem.setItemMeta(potmeta);
+
+
     }
 
     @Override

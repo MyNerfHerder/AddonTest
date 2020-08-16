@@ -1,9 +1,7 @@
 package me.mynerfherder.addontest;
 
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
-import org.bukkit.Color;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -41,26 +39,15 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         entity.setMetadata(key, new FixedMetadataValue(plugin, object));
 
     }
-
-    //makes the data file object to be used later.
-    private File cartData = new File("../AddonTest/cartData.yml");
-    //Loads the YAML Configuration.
-    public YamlConfiguration cartDataFile = YamlConfiguration.loadConfiguration(cartData);
+    //setup to pull from CartDataConfigManager Class file.
+    private CartDataConfigManager cartDataConfigManager;
 
     @Override
     public void onEnable() {
         //Prints out that the addon is enabled in the console
         getLogger().info("Vehicle Mod has been Enabled and will now load.");
 
-        //Gets if the cart data file exists or not and creates it.
-        if(!cartData.exists()) {
-            try {
-                cartDataFile.save(cartData);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        loadConfigManager();
 
         //Manages the plugins???
         PluginManager pm = getServer().getPluginManager();
@@ -147,6 +134,11 @@ public class AddonTest extends JavaPlugin implements SlimefunAddon {
         //GrassJuiceItem.setItemMeta(potmeta);
 
 
+    }
+
+    public void loadConfigManager() {
+        cartDataConfigManager = new CartDataConfigManager();
+        cartDataConfigManager.setupCartData();
     }
 
     @Override
